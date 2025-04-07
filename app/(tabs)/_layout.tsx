@@ -1,43 +1,121 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-
+import { Tabs } from 'expo-router';
+import { FontAwesome } from '@expo/vector-icons';
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { BlurView } from 'expo-blur';
+import { Platform, StyleSheet, View } from 'react-native';
+
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof FontAwesome>['name'];
+  color: string;
+}) {
+  return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
+}
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+        tabBarActiveTintColor: '#EF4444',
+        tabBarInactiveTintColor: '#6B7280',
+        tabBarShowLabel: true,
+        tabBarStyle: {
+          paddingBottom: 5,
+          paddingTop: 5,
+          height: 60,
+          backgroundColor: Platform.OS === 'ios' ? 'transparent' : '#FFFFFF',
+          borderTopWidth: 0,
+          position: Platform.OS === 'ios' ? 'absolute' : 'relative',
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: -2,
           },
-          default: {},
-        }),
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 10,
+        },
+        tabBarBackground: () => 
+          Platform.OS === 'ios' ? (
+            <BlurView
+              tint="light"
+              intensity={95}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : null,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+          marginTop: -3,
+          marginBottom: 4,
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Ana Sayfa',
+          tabBarIcon: ({ color }: { color: string }) => <TabBarIcon name="home" color={color} />,
+          tabBarButton: (props: React.ComponentProps<typeof HapticTab>) => <HapticTab {...props} />,
+          headerTitle: 'HSD Türkiye',
+          headerStyle: {
+            backgroundColor: '#F0F8FF',
+          },
+          headerTitleStyle: {
+            fontWeight: '600',
+            color: '#111827',
+          },
+          headerShadowVisible: false,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="events"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Etkinlikler',
+          tabBarIcon: ({ color }: { color: string }) => <TabBarIcon name="calendar" color={color} />,
+          tabBarButton: (props: React.ComponentProps<typeof HapticTab>) => <HapticTab {...props} />,
+          headerTitle: 'Etkinlikler',
+          headerStyle: {
+            backgroundColor: '#F0F8FF',
+          },
+          headerTitleStyle: {
+            fontWeight: '600',
+            color: '#111827',
+          },
+          headerShadowVisible: false,
+        }}
+      />
+      <Tabs.Screen
+        name="clubs"
+        options={{
+          title: 'Kulüpler',
+          tabBarIcon: ({ color }: { color: string }) => <TabBarIcon name="university" color={color} />,
+          tabBarButton: (props: React.ComponentProps<typeof HapticTab>) => <HapticTab {...props} />,
+          headerTitle: 'Kulüpler',
+          headerStyle: {
+            backgroundColor: '#F0F8FF',
+          },
+          headerTitleStyle: {
+            fontWeight: '600',
+            color: '#111827',
+          },
+          headerShadowVisible: false,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profil',
+          tabBarIcon: ({ color }: { color: string }) => <TabBarIcon name="user" color={color} />,
+          tabBarButton: (props: React.ComponentProps<typeof HapticTab>) => <HapticTab {...props} />,
+          headerTitle: 'Profilim',
+          headerStyle: {
+            backgroundColor: '#F0F8FF',
+          },
+          headerTitleStyle: {
+            fontWeight: '600',
+            color: '#111827',
+          },
+          headerShadowVisible: false,
         }}
       />
     </Tabs>
