@@ -87,51 +87,103 @@ export default function BlogScreen() {
       const responseText = await response.text();
       const parsedData = await rssParser.parse(responseText);
 
-      const formattedPosts: BlogPost[] = parsedData.items.map((item: RSSItem, index: number) => {
-        // Thumbnail resmi çıkarma denemesi
-        let thumbnail = "https://miro.medium.com/max/1200/1*jfdwtvU6V6g99q3G7gq7dQ.png";
-        
-        // İçerikten resim çıkarmaya çalış
-        if (item.content) {
-          const match = item.content.match(/<img[^>]+src="([^">]+)"/);
-          if (match && match[1]) {
-            thumbnail = match[1];
+      // Önce parsedData.items'in geçerli bir dizi olduğunu kontrol et
+      if (!parsedData || !parsedData.items || !Array.isArray(parsedData.items)) {
+        console.error('Geçersiz RSS yanıtı. İçerik:', parsedData);
+        throw new Error('Geçersiz RSS yanıtı');
+      }
+
+      // Her bir öğeyi güvenli bir şekilde işle
+      const formattedPosts: BlogPost[] = parsedData.items
+        .map((item: RSSItem, index: number) => {
+          try {
+            // Thumbnail resmi çıkarma denemesi
+            let thumbnail = "https://miro.medium.com/max/1200/1*jfdwtvU6V6g99q3G7gq7dQ.png";
+            
+            // İçerikten resim çıkarmaya çalış
+            if (item.content) {
+              const match = item.content.match(/<img[^>]+src="([^">]+)"/);
+              if (match && match[1]) {
+                thumbnail = match[1];
+              }
+            }
+
+            // Okuma süresini hesapla (her 1000 karakter için yaklaşık 1 dakika)
+            const contentLength = item.content ? item.content.length : 0;
+            const readingTimeMinutes = Math.max(1, Math.floor(contentLength / 5000));
+
+            // Etiketler (kategoriler varsa kullan, yoksa varsayılan etiketler)
+            const tags = item.categories && Array.isArray(item.categories) && item.categories.length > 0 
+              ? item.categories.slice(0, 2).map(tag => typeof tag === 'string' ? tag : String(tag))
+              : ["Teknoloji", "Yazılım"];
+              
+            // Yazarı doğru şekilde çıkar - authors bir nesne dizisi olduğu için
+            let authorName = 'HSD Yazarı';
+            try {
+              if (item.authors && Array.isArray(item.authors) && item.authors.length > 0) {
+                const author = item.authors[0];
+                if (typeof author === 'string') {
+                  authorName = author;
+                } else if (typeof author === 'object' && author !== null) {
+                  if (typeof author.name === 'string') {
+                    authorName = author.name;
+                  } else if (author.name) {
+                    // Eğer name varsa ama string değilse, string'e çevir
+                    authorName = String(author.name);
+                  }
+                }
+              }
+            } catch (e) {
+              console.error('Author bilgisi işlenirken hata:', e);
+              authorName = 'HSD Yazarı';
+            }
+
+            // Link kontrolü
+            let link = "#";
+            if (item.links && Array.isArray(item.links) && item.links.length > 0) {
+              const firstLink = item.links[0];
+              if (typeof firstLink === 'object' && firstLink !== null && typeof firstLink.url === 'string') {
+                link = firstLink.url;
+              }
+            }
+
+            // Tüm alanların güvenli bir şekilde oluşturulduğundan emin ol
+            return {
+              id: `post-${index}`,
+              title: item.title && typeof item.title === 'string' ? item.title : 'Başlıksız Yazı',
+              link: link,
+              pubDate: item.published && typeof item.published === 'string' ? 
+                new Date(item.published).toLocaleDateString('tr-TR', {
+                  day: 'numeric', 
+                  month: 'long', 
+                  year: 'numeric'
+                }) : 
+                new Date().toLocaleDateString('tr-TR'),
+              contentSnippet: item.description && typeof item.description === 'string' ? 
+                item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...' : 
+                'İçerik bulunamadı',
+              author: authorName,
+              thumbnail: thumbnail,
+              readTime: `${readingTimeMinutes} dakika`,
+              tags: tags
+            };
+          } catch (itemError) {
+            console.error('Blog post öğesi işlenirken hata:', itemError, 'Ham veri:', item);
+            // Hataya rağmen bir şeyler göster - varsayılan değerlerle
+            return {
+              id: `error-post-${index}`,
+              title: 'İçerik Yüklenemedi',
+              link: "#",
+              pubDate: new Date().toLocaleDateString('tr-TR'),
+              contentSnippet: 'Bu içerik yüklenirken bir hata oluştu.',
+              author: 'HSD Yazarı',
+              thumbnail: "https://miro.medium.com/max/1200/1*jfdwtvU6V6g99q3G7gq7dQ.png",
+              readTime: '1 dakika',
+              tags: ["Hata", "İçerik"]
+            };
           }
-        }
-
-        // Okuma süresini hesapla (her 1000 karakter için yaklaşık 1 dakika)
-        const contentLength = item.content ? item.content.length : 0;
-        const readingTimeMinutes = Math.max(1, Math.floor(contentLength / 5000));
-
-        // Etiketler (kategoriler varsa kullan, yoksa varsayılan etiketler)
-        const tags = item.categories && item.categories.length > 0 
-          ? item.categories.slice(0, 2)
-          : ["Teknoloji", "Yazılım"];
-          
-        // Yazarı doğru şekilde çıkar - authors bir nesne dizisi olduğu için
-        let authorName = 'HSD Yazarı';
-        if (item.authors && item.authors.length > 0 && typeof item.authors[0] === 'object') {
-          authorName = item.authors[0].name || 'HSD Yazarı';
-        }
-
-        return {
-          id: `post-${index}`,
-          title: item.title || 'Başlıksız Yazı',
-          link: item.links[0]?.url || "#",
-          pubDate: new Date(item.published || Date.now()).toLocaleDateString('tr-TR', {
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric'
-          }),
-          contentSnippet: item.description ? 
-            item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...' : 
-            'İçerik bulunamadı',
-          author: authorName,
-          thumbnail: thumbnail,
-          readTime: `${readingTimeMinutes} dakika`,
-          tags: tags
-        };
-      });
+        })
+        .filter(Boolean); // null veya undefined değerleri filtrele
 
       setPosts(formattedPosts);
       setLoading(false);
@@ -186,34 +238,50 @@ export default function BlogScreen() {
   }, []);
 
   const renderBlogCard = (post: BlogPost, index: number) => {
+    if (!post || typeof post !== 'object') {
+      console.error('Geçersiz post verisi:', post);
+      return null;
+    }
+
+    // Tüm değerlerin string olmasını sağla
+    const safeTitle = typeof post.title === 'string' ? post.title : 'Başlıksız Yazı';
+    const safeAuthor = typeof post.author === 'string' ? post.author : 'HSD Yazarı';
+    const safePubDate = typeof post.pubDate === 'string' ? post.pubDate : '';
+    const safeReadTime = typeof post.readTime === 'string' ? post.readTime : '';
+    
+    // Tags dizisinin güvenli olmasını sağla
+    const safeTags = Array.isArray(post.tags) 
+      ? post.tags.map(tag => typeof tag === 'string' ? tag : String(tag))
+      : [];
+
     return (
       <TouchableOpacity
-        key={`blog-post-${post.id}-${index}`}
+        key={`blog-post-${post.id || index}-${index}`}
         style={styles.blogCard}
         activeOpacity={0.9}
-        onPress={() => Linking.openURL(post.link)}
+        onPress={() => post.link && Linking.openURL(post.link)}
       >
-        <Image source={{ uri: post.thumbnail }} style={styles.blogImage} />
+        <Image source={{ uri: post.thumbnail || 'https://via.placeholder.com/400' }} style={styles.blogImage} />
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.8)']}
           style={styles.blogGradient}
         />
         <View style={styles.blogContent}>
           <View style={styles.tagContainer}>
-            {post.tags.map((tag: string, tagIndex: number) => (
-              <View key={`${post.id}-tag-${tagIndex}`} style={styles.tag}>
+            {safeTags.map((tag, tagIndex) => (
+              <View key={`tag-${index}-${tagIndex}`} style={styles.tag}>
                 <ThemedText style={styles.tagText}>{tag}</ThemedText>
               </View>
             ))}
           </View>
-          <ThemedText style={styles.blogTitle}>{post.title}</ThemedText>
+          <ThemedText style={styles.blogTitle}>{safeTitle}</ThemedText>
           <View style={styles.blogMeta}>
-            <ThemedText style={styles.blogAuthor}>{post.author}</ThemedText>
+            <ThemedText style={styles.blogAuthor}>{safeAuthor}</ThemedText>
             <View style={styles.blogStats}>
-              <ThemedText style={styles.blogDate}>{post.pubDate}</ThemedText>
+              <ThemedText style={styles.blogDate}>{safePubDate}</ThemedText>
               <View style={styles.readTimeContainer}>
                 <FontAwesome name="clock-o" size={12} color="#FFF" />
-                <ThemedText style={styles.readTime}>{post.readTime}</ThemedText>
+                <ThemedText style={styles.readTime}>{safeReadTime}</ThemedText>
               </View>
             </View>
           </View>
@@ -223,13 +291,20 @@ export default function BlogScreen() {
   };
 
   const renderFeaturedPost = () => {
+    // Featured post verilerini güvenli hale getirelim
+    const safeTitle = typeof featuredPostData.title === 'string' ? featuredPostData.title : '';
+    const safeAuthor = typeof featuredPostData.author === 'string' ? featuredPostData.author : '';
+    const safeSnippet = typeof featuredPostData.snippet === 'string' ? featuredPostData.snippet : '';
+    const safeReadTime = typeof featuredPostData.readTime === 'string' ? featuredPostData.readTime : '';
+    const safeLink = typeof featuredPostData.link === 'string' ? featuredPostData.link : '#';
+    
     return (
       <TouchableOpacity
         style={styles.featuredPost}
         activeOpacity={0.95}
-        onPress={() => Linking.openURL(featuredPostData.link)}
+        onPress={() => Linking.openURL(safeLink)}
       >
-        <Image source={{ uri: featuredPostData.image }} style={styles.featuredImage} />
+        <Image source={{ uri: featuredPostData.image || 'https://via.placeholder.com/800' }} style={styles.featuredImage} />
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.8)']}
           style={styles.featuredGradient}
@@ -240,16 +315,16 @@ export default function BlogScreen() {
               <ThemedText style={styles.featuredTagText}>Öne Çıkan</ThemedText>
             </View>
           </View>
-          <ThemedText style={styles.featuredTitle}>{featuredPostData.title}</ThemedText>
-          <ThemedText style={styles.featuredSnippet}>{featuredPostData.snippet}</ThemedText>
+          <ThemedText style={styles.featuredTitle}>{safeTitle}</ThemedText>
+          <ThemedText style={styles.featuredSnippet}>{safeSnippet}</ThemedText>
           <View style={styles.featuredMeta}>
             <View style={styles.authorContainer}>
               <FontAwesome name="user-circle" size={16} color="#FFF" />
-              <ThemedText style={styles.featuredAuthor}>{featuredPostData.author}</ThemedText>
+              <ThemedText style={styles.featuredAuthor}>{safeAuthor}</ThemedText>
             </View>
             <View style={styles.readTimeContainer}>
               <FontAwesome name="clock-o" size={14} color="#FFF" />
-              <ThemedText style={styles.featuredReadTime}>{featuredPostData.readTime}</ThemedText>
+              <ThemedText style={styles.featuredReadTime}>{safeReadTime}</ThemedText>
             </View>
           </View>
         </View>
@@ -289,7 +364,17 @@ export default function BlogScreen() {
               <ThemedText style={styles.dateLabelText}>Son güncelleme:</ThemedText>
               <View style={styles.dateBadge}>
                 <ThemedText style={styles.dateBadgeText}>
-                  {new Date().toLocaleDateString('tr-TR', {day: 'numeric', month: 'long', year: 'numeric'})}
+                  {(() => {
+                    try {
+                      return new Date().toLocaleDateString('tr-TR', {
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric'
+                      });
+                    } catch (e) {
+                      return new Date().toDateString();
+                    }
+                  })()}
                 </ThemedText>
               </View>
             </View>
@@ -339,7 +424,15 @@ export default function BlogScreen() {
               </View>
             ))
           ) : posts.length > 0 ? (
-            posts.map((post, index) => renderBlogCard(post, index))
+            // Her bir postu renderBlogCard fonksiyonu ile render et
+            // Ancak önce her birinin geçerli bir nesne olduğundan emin ol
+            posts.map((post, index) => {
+              if (!post || typeof post !== 'object') {
+                console.error('Geçersiz post nesnesi:', post);
+                return null;
+              }
+              return renderBlogCard(post, index);
+            }).filter(Boolean) // null veya undefined değerleri filtrele
           ) : (
             <View style={styles.emptyState}>
               <FontAwesome name="exclamation-circle" size={40} color="#CBD5E0" />
