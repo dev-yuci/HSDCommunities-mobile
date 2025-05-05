@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import HSDLogo from '@/components/HSDLogo';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useAuth } from '../../context/AuthContext';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -15,8 +16,9 @@ export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Hata', 'E-posta ve şifre alanları boş bırakılamaz');
       return;
@@ -24,13 +26,43 @@ export default function LoginForm() {
 
     setIsSubmitting(true);
 
-    // Burada normalde API'ye istek göndereceğiz
-    // Şimdilik simüle ediyoruz
-    setTimeout(() => {
+    try {
+      console.log('Giriş işlemi başlatılıyor...');
+      const result = await login(email, password);
+      console.log('Giriş başarılı:', result);
+      
+      // Giriş başarılı - kullanıcı ana sayfaya yönlendirilecek
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      // Hata detaylarını konsola yazdır
+      console.error('Giriş hatası:', error);
+      console.error('Hata kodu:', error.code);
+      console.error('Hata mesajı:', error.message);
+      
+      // Firebase hata kodlarına göre uygun mesajlar gösterme
+      let errorMessage = 'Giriş yapılırken bir hata oluştu.';
+      
+      if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Geçersiz e-posta adresi.';
+      } else if (error.code === 'auth/user-disabled') {
+        errorMessage = 'Bu kullanıcı hesabı devre dışı bırakılmış.';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Bu e-posta adresine ait bir hesap bulunamadı.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Hatalı şifre.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Çok fazla başarısız giriş denemesi. Lütfen daha sonra tekrar deneyin.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Ağ bağlantısı hatası. Lütfen internet bağlantınızı kontrol edin.';
+      } else if (error.code) {
+        // Diğer hata kodları için daha detaylı mesaj
+        errorMessage = `Hata kodu: ${error.code}\nDetay: ${error.message}`;
+      }
+      
+      Alert.alert('Giriş Başarısız', errorMessage);
+    } finally {
       setIsSubmitting(false);
-      // Kullanıcı giriş yaptığı varsayılıyor
-      router.replace('/');
-    }, 1500);
+    }
   };
 
   return (
@@ -91,7 +123,10 @@ export default function LoginForm() {
           disabled={isSubmitting}
         >
           {isSubmitting ? (
-            <ThemedText style={styles.loginButtonText}>Giriş Yapılıyor...</ThemedText>
+            <View style={styles.buttonContent}>
+              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ThemedText style={[styles.loginButtonText, {marginLeft: 8}]}>Giriş Yapılıyor...</ThemedText>
+            </View>
           ) : (
             <View style={styles.buttonContent}>
               <ThemedText style={styles.loginButtonText}>Giriş Yap</ThemedText>

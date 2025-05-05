@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@firebase/auth-compat": "^0.5.21",
+    "@firebase/firestore-compat": "^0.3.46",
+    "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "expo": "~52.0.43",
@@ -30,6 +33,7 @@
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.9",
     "expo-web-browser": "~14.0.2",
+    "firebase": "^9.23.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.9",

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import HSDLogo from '@/components/HSDLogo';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useAuth } from '../../context/AuthContext';
+import { db } from '../../firebase/config';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -21,12 +23,13 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
+  const { register } = useAuth();
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     // Basit validasyon
     if (!formData.name || !formData.email || !formData.university || !formData.password || !formData.confirmPassword) {
       Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
@@ -38,23 +41,91 @@ export default function RegisterForm() {
       return;
     }
 
+    // Şifre gücü kontrolü
+    if (formData.password.length < 6) {
+      Alert.alert('Hata', 'Şifre en az 6 karakter olmalıdır');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Burada normalde API'ye istek göndereceğiz
-    // Şimdilik simüle ediyoruz
-    setTimeout(() => {
+    try {
+      // Firebase ile kayıt işlemi
+      console.log('Kayıt işlemi başlatılıyor...');
+      const userCredential = await register(formData.email, formData.password);
+      
+      if (userCredential && userCredential.user) {
+        const uid = userCredential.user.uid;
+        console.log('Kullanıcı oluşturuldu, veritabanına ek bilgiler kaydediliyor...');
+        
+        // Ek kullanıcı bilgilerini Firestore'a kaydet
+        try {
+          await db.collection('users').doc(uid).set({
+            name: formData.name,
+            email: formData.email,
+            university: formData.university,
+            createdAt: new Date(),
+          });
+          
+          console.log('Kullanıcı profili başarıyla oluşturuldu');
+          
+          // Kayıt başarılı mesajı ve yönlendirme
+          Alert.alert(
+            'Kayıt Başarılı',
+            'HSD Topluluklarına hoş geldiniz! Hesabınız başarıyla oluşturuldu.',
+            [
+              {
+                text: 'Devam Et',
+                onPress: () => router.replace('/(tabs)'),
+              },
+            ]
+          );
+        } catch (firestoreError: any) {
+          console.error('Firestore hatası:', firestoreError);
+          
+          // Kullanıcı oluşturuldu ancak profil verileri kaydedilemedi
+          Alert.alert(
+            'Kısmi Başarı',
+            'Hesabınız oluşturuldu, ancak profil bilgileriniz kaydedilemedi. Lütfen daha sonra profilinizi güncelleyin.',
+            [
+              {
+                text: 'Devam Et',
+                onPress: () => router.replace('/(tabs)'),
+              },
+            ]
+          );
+        }
+      } else {
+        throw new Error('Kullanıcı oluşturuldu ancak kullanıcı verileri alınamadı');
+      }
+    } catch (error: any) {
+      // Hata detaylarını konsola yazdır
+      console.error('Kayıt hatası:', error);
+      console.error('Hata kodu:', error.code);
+      console.error('Hata mesajı:', error.message);
+      
+      // Firebase hata kodlarına göre uygun mesajlar gösterme
+      let errorMessage = 'Kayıt işlemi sırasında bir hata oluştu.';
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Bu e-posta adresi zaten kullanılıyor.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Geçersiz e-posta adresi.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Şifre çok zayıf. Lütfen daha güçlü bir şifre seçin.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = 'E-posta/şifre girişi devre dışı bırakılmış.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Ağ bağlantısı hatası. Lütfen internet bağlantınızı kontrol edin.';
+      } else if (error.code) {
+        // Diğer hata kodları için daha detaylı mesaj
+        errorMessage = `Hata kodu: ${error.code}\nDetay: ${error.message}`;
+      }
+      
+      Alert.alert('Kayıt Başarısız', errorMessage);
+    } finally {
       setIsSubmitting(false);
-      Alert.alert(
-        'Kayıt Başarılı',
-        'HSD Topluluklarına hoş geldiniz! Hesabınız başarıyla oluşturuldu.',
-        [
-          {
-            text: 'Giriş Yap',
-            onPress: () => router.replace('/login'),
-          },
-        ]
-      );
-    }, 1500);
+    }
   };
 
   return (
@@ -164,7 +235,10 @@ export default function RegisterForm() {
           disabled={isSubmitting}
         >
           {isSubmitting ? (
-            <ThemedText style={styles.registerButtonText}>Kaydediliyor...</ThemedText>
+            <View style={styles.buttonContent}>
+              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ThemedText style={[styles.registerButtonText, {marginLeft: 8}]}>Kaydediliyor...</ThemedText>
+            </View>
           ) : (
             <View style={styles.buttonContent}>
               <ThemedText style={styles.registerButtonText}>Kayıt Ol</ThemedText>
