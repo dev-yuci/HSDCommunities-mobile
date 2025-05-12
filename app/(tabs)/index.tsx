@@ -1,8 +1,9 @@
-import { StyleSheet, Platform, TouchableOpacity, View, Dimensions } from 'react-native';
+import { StyleSheet, Platform, TouchableOpacity, View, Dimensions, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming, withSequence, withDelay, Easing } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
+import { useRouter } from 'expo-router';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -20,6 +21,7 @@ function HomeScreen() {
   // Logo için animasyon değerleri
   const logoScale = useSharedValue(1);
   const glowOpacity = useSharedValue(0);
+  const router = useRouter();
   
   useEffect(() => {
     // Nefes alma efekti
@@ -151,22 +153,118 @@ function HomeScreen() {
           style={styles.eventCard}
           entering={FadeInDown.duration(800).delay(1200)}
         >
-          <View style={styles.eventImagePlaceholder}>
-            <FontAwesome name="calendar" size={48} color="#CBD5E1" />
+          <View style={styles.eventImageContainer}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1573164574230-db1d5e960238?q=80&w=1000&auto=format&fit=crop' }} 
+              style={styles.eventImage}
+              resizeMode="cover"
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.7)']}
+              style={styles.imageGradient}
+            />
+            <View style={styles.eventParticipants}>
+              <FontAwesome name="users" size={12} color="#FFFFFF" style={{marginRight: 4}} />
+              <ThemedText style={styles.eventParticipantsText}>45 Katılımcı</ThemedText>
+            </View>
+            <View style={styles.eventType}>
+              <ThemedText style={styles.eventTypeText}>Workshop</ThemedText>
+            </View>
           </View>
           <ThemedView style={styles.eventContent}>
-            <View style={styles.eventBadge}>
-              <ThemedText style={styles.eventBadgeText}>Workshop</ThemedText>
+            <ThemedText type="defaultSemiBold" style={styles.eventTitle}>HMS Core Workshop</ThemedText>
+            <View style={styles.eventMetaInfo}>
+              <ThemedText style={styles.eventDate}>
+                <FontAwesome name="calendar" size={12} color="#9CA3AF" /> 15 Haziran 2024
+              </ThemedText>
+              <ThemedText style={styles.eventLocation}>
+                <FontAwesome name="map-marker" size={12} color="#9CA3AF" /> İstanbul Teknik Üniversitesi
+              </ThemedText>
             </View>
-            <ThemedText type="defaultSemiBold" style={styles.eventTitle}>HSD İstanbul Workshop Etkinliği</ThemedText>
-            <ThemedText style={styles.eventDate}>
-              <FontAwesome name="calendar" size={12} color="#9CA3AF" /> 12 Nisan 2024
-            </ThemedText>
-            <ThemedText style={styles.eventLocation}>
-              <FontAwesome name="map-marker" size={12} color="#9CA3AF" /> İstanbul Teknik Üniversitesi
-            </ThemedText>
             <ThemedText numberOfLines={2} style={styles.eventDescription}>
-              Huawei teknolojileri ile uygulama geliştirme konusunda pratik deneyim kazanın.
+              Huawei Mobile Services Core API'larını kullanarak akıllı uygulamalar geliştirmeyi öğrenin.
+            </ThemedText>
+            <TouchableOpacity style={styles.eventButton}>
+              <ThemedText style={styles.eventButtonText}>Detaylar</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        </AnimatedThemedView>
+
+        <AnimatedThemedView 
+          style={styles.eventCard}
+          entering={FadeInDown.duration(800).delay(1400)}
+        >
+          <View style={styles.eventImageContainer}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1000&auto=format&fit=crop' }} 
+              style={styles.eventImage}
+              resizeMode="cover"
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.7)']}
+              style={styles.imageGradient}
+            />
+            <View style={styles.eventParticipants}>
+              <FontAwesome name="users" size={12} color="#FFFFFF" style={{marginRight: 4}} />
+              <ThemedText style={styles.eventParticipantsText}>120 Katılımcı</ThemedText>
+            </View>
+            <View style={[styles.eventType, {backgroundColor: '#3B82F6'}]}>
+              <ThemedText style={styles.eventTypeText}>Hackathon</ThemedText>
+            </View>
+          </View>
+          <ThemedView style={styles.eventContent}>
+            <ThemedText type="defaultSemiBold" style={styles.eventTitle}>HarmonyOS Hackathon 2024</ThemedText>
+            <View style={styles.eventMetaInfo}>
+              <ThemedText style={styles.eventDate}>
+                <FontAwesome name="calendar" size={12} color="#9CA3AF" /> 22-24 Temmuz 2024
+              </ThemedText>
+              <ThemedText style={styles.eventLocation}>
+                <FontAwesome name="map-marker" size={12} color="#9CA3AF" /> Ankara ODTÜ Teknokent
+              </ThemedText>
+            </View>
+            <ThemedText numberOfLines={2} style={styles.eventDescription}>
+              48 saat boyunca HarmonyOS için yenilikçi uygulamalar geliştirin ve ödüller kazanın.
+            </ThemedText>
+            <TouchableOpacity style={styles.eventButton}>
+              <ThemedText style={styles.eventButtonText}>Detaylar</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        </AnimatedThemedView>
+
+        <AnimatedThemedView 
+          style={styles.eventCard}
+          entering={FadeInDown.duration(800).delay(1600)}
+        >
+          <View style={styles.eventImageContainer}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1000&auto=format&fit=crop' }} 
+              style={styles.eventImage}
+              resizeMode="cover"
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.7)']}
+              style={styles.imageGradient}
+            />
+            <View style={styles.eventParticipants}>
+              <FontAwesome name="users" size={12} color="#FFFFFF" style={{marginRight: 4}} />
+              <ThemedText style={styles.eventParticipantsText}>250 Katılımcı</ThemedText>
+            </View>
+            <View style={[styles.eventType, {backgroundColor: '#8B5CF6'}]}>
+              <ThemedText style={styles.eventTypeText}>Konferans</ThemedText>
+            </View>
+          </View>
+          <ThemedView style={styles.eventContent}>
+            <ThemedText type="defaultSemiBold" style={styles.eventTitle}>HSD Türkiye Zirvesi 2024</ThemedText>
+            <View style={styles.eventMetaInfo}>
+              <ThemedText style={styles.eventDate}>
+                <FontAwesome name="calendar" size={12} color="#9CA3AF" /> 10 Ağustos 2024
+              </ThemedText>
+              <ThemedText style={styles.eventLocation}>
+                <FontAwesome name="map-marker" size={12} color="#9CA3AF" /> İzmir Ekonomi Üniversitesi
+              </ThemedText>
+            </View>
+            <ThemedText numberOfLines={2} style={styles.eventDescription}>
+              Türkiye'nin dört bir yanından HSD üyelerinin buluşacağı yıllık zirvede yerinizi alın.
             </ThemedText>
             <TouchableOpacity style={styles.eventButton}>
               <ThemedText style={styles.eventButtonText}>Detaylar</ThemedText>
@@ -174,7 +272,10 @@ function HomeScreen() {
           </ThemedView>
         </AnimatedThemedView>
         
-        <TouchableOpacity style={styles.viewAllButton}>
+        <TouchableOpacity 
+          style={styles.viewAllButton}
+          onPress={() => router.push('/events')}
+        >
           <ThemedText style={styles.viewAllText}>Tüm Etkinlikleri Gör</ThemedText>
           <FontAwesome name="angle-right" size={16} color="#EF4444" />
         </TouchableOpacity>
@@ -447,46 +548,78 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   eventCard: {
-    borderRadius: 16,
+    flexDirection: 'column',
+    backgroundColor: 'white',
+    borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
     marginBottom: 16,
-  },
-  eventImagePlaceholder: {
-    height: 160,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
     width: '100%',
-    backgroundColor: '#F8FAFC',
-    justifyContent: 'center',
+    height: 'auto',
+  },
+  eventImageContainer: {
+    width: '100%',
+    height: 180,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  imageGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '50%',
+  },
+  eventImage: {
+    width: '100%',
+    height: '100%',
+  },
+  eventParticipants: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+  },
+  eventType: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  eventTypeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  eventParticipantsText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   eventContent: {
     padding: 16,
-    gap: 6,
   },
-  eventBadge: {
-    backgroundColor: '#FEF2F2',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-    marginBottom: 6,
-  },
-  eventBadgeText: {
-    color: '#EF4444',
-    fontSize: 12,
-    fontWeight: '600',
+  eventMetaInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+    marginBottom: 10,
   },
   eventTitle: {
     fontSize: 18,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   eventDate: {
     fontSize: 13,
@@ -499,14 +632,13 @@ const styles = StyleSheet.create({
   eventDescription: {
     fontSize: 14,
     color: '#6B7280',
-    marginTop: 8,
     marginBottom: 12,
     lineHeight: 20,
   },
   eventButton: {
     backgroundColor: '#F3F4F6',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 8,
     alignSelf: 'flex-start',
     marginTop: 6,

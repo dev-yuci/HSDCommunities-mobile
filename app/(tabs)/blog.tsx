@@ -46,15 +46,63 @@ interface RSSItem {
 // Öne çıkan yazı için sabit veri
 const featuredPostData = {
   id: "featured-1",
-  title: "Huawei Cloud ile Yapay Zeka Modellerini Optimize Etme Rehberi",
-  author: "Mehmet Koçak",
-  date: "15 Mart 2024",
-  image: "https://cdn-images-1.medium.com/max/1024/1*_ARpBrkmLp6wS7X9fi1wJw.jpeg",
-  readTime: "12 dakika",
-  snippet: "Yapay zeka modellerini eğitirken karşılaşacağınız performans sorunları ve Huawei Cloud'un sunduğu çözümlerle bu sorunların nasıl aşılabileceğini detaylı olarak inceliyoruz.",
-  link: "https://medium.com/@hsdfiratuniversity/huawei-cloud-ile-yapay-zeka-projelerinizi-hızlandırın-b7e421f7d7cc",
-  tags: ["Yapay Zeka", "Cloud Computing", "Model Optimizasyonu"]
+  title: "Huawei Mobile Services ile Modern Mobil Uygulamalar Geliştirme",
+  author: "Ahmet Yılmaz",
+  date: "2 Haziran 2024",
+  image: "https://images.unsplash.com/photo-1551650992-ee4fd47df41f?q=80&w=1000&auto=format&fit=crop",
+  readTime: "8 dakika",
+  snippet: "HMS Core ile Android uygulamalarınızı nasıl geliştirebileceğinizi, en yeni API'ları ve bu teknolojilerin sunduğu olanakları bu yazımızda detaylı olarak inceledik.",
+  link: "https://medium.com/@hsdcommunities",
+  tags: ["Mobil Geliştirme", "HMS Core", "Android"]
 };
+
+// Örnek blog yazıları - Medium API çalışmadığında kullanılabilir
+const SAMPLE_BLOG_POSTS: BlogPost[] = [
+  {
+    id: "1",
+    title: 'Yapay Zeka ve HMS ML Kit ile Görüntü Tanıma',
+    author: 'Zeynep Kaya',
+    pubDate: '12 Mayıs 2024',
+    thumbnail: 'https://images.unsplash.com/photo-1591453089816-0fbb971b454c?q=80&w=1000&auto=format&fit=crop',
+    readTime: '7 dakika',
+    contentSnippet: 'HMS ML Kit kütüphanesi kullanarak akıllı görüntü tanıma sistemleri geliştirmeyi ve uygulamalarınıza yapay zeka yetenekleri eklemeyi öğrenin.',
+    tags: ['Yapay Zeka', 'HMS ML Kit'],
+    link: "https://medium.com/@hsdcommunities/yapay-zeka"
+  },
+  {
+    id: "2",
+    title: 'HarmonyOS Uygulama Geliştirme: Başlangıç Rehberi',
+    author: 'Burak Demir',
+    pubDate: '28 Nisan 2024',
+    thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop',
+    readTime: '10 dakika',
+    contentSnippet: 'HarmonyOS için uygulama geliştirmeye başlamak isteyenler için adım adım rehber ve en iyi uygulama örnekleri.',
+    tags: ['HarmonyOS', 'Uygulama Geliştirme'],
+    link: "https://medium.com/@hsdcommunities/harmonyos"
+  },
+  {
+    id: "3",
+    title: 'Huawei Cloud Hizmetleri İle Ölçeklenebilir Uygulamalar',
+    author: 'Selin Yılmaz',
+    pubDate: '15 Mart 2024',
+    thumbnail: 'https://images.unsplash.com/photo-1526498460520-4c246339dccb?q=80&w=1000&auto=format&fit=crop',
+    readTime: '6 dakika',
+    contentSnippet: 'Büyük ölçekli projelerde Huawei Cloud servislerinin nasıl kullanılacağı ve performans optimizasyonu ipuçları.',
+    tags: ['Cloud Computing', 'Ölçeklenebilirlik'],
+    link: "https://medium.com/@hsdcommunities/huawei-cloud"
+  },
+  {
+    id: "4",
+    title: 'HMS Push Kit ile Bildirim Sistemi Oluşturma',
+    author: 'Emre Kaya',
+    pubDate: '24 Şubat 2024',
+    thumbnail: 'https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?q=80&w=1000&auto=format&fit=crop',
+    readTime: '5 dakika',
+    contentSnippet: 'HMS Push Kit kullanarak uygulamanıza etkili bir bildirim sistemi nasıl entegre edilir ve kullanıcı deneyimini nasıl iyileştirebilirsiniz?',
+    tags: ['HMS Push Kit', 'Mobil Bildirimler'],
+    link: "https://medium.com/@hsdcommunities/push-kit"
+  }
+];
 
 export default function BlogScreen() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -192,41 +240,7 @@ export default function BlogScreen() {
       setLoading(false);
       
       // Hata durumunda örnek veri göster
-      setPosts([
-        {
-          id: "1",
-          title: 'Yapay Zeka ve Bulut Teknolojilerinin Geleceği',
-          author: 'Ahmet Yılmaz',
-          pubDate: '15 Nisan 2023',
-          thumbnail: 'https://images.unsplash.com/photo-1591453089816-0fbb971b454c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80',
-          readTime: '5 dakika',
-          contentSnippet: 'Bulut bilişim ve yapay zeka teknolojilerinin gelecekte nasıl şekilleneceğine dair öngörüler ve analizler.',
-          tags: ['Yapay Zeka', 'Bulut Bilişim'],
-          link: "#"
-        },
-        {
-          id: "2",
-          title: 'Web Geliştirme Trendleri 2023',
-          author: 'Zeynep Kaya',
-          pubDate: '3 Mart 2023',
-          thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80',
-          readTime: '4 dakika',
-          contentSnippet: 'Web geliştirme alanında 2023 yılında öne çıkan teknolojiler, framework\'ler ve metodolojiler.',
-          tags: ['Web Geliştirme', 'Frontend'],
-          link: "#"
-        },
-        {
-          id: "3",
-          title: 'Mobil Uygulama Geliştiricileri için Öneriler',
-          author: 'Mert Demir',
-          pubDate: '27 Şubat 2023',
-          thumbnail: 'https://images.unsplash.com/photo-1526498460520-4c246339dccb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
-          readTime: '6 dakika',
-          contentSnippet: 'Mobil uygulama geliştirirken performans ve kullanıcı deneyimini iyileştirmek için ipuçları.',
-          tags: ['Mobil Geliştirme', 'UX'],
-          link: "#"
-        }
-      ]);
+      setPosts(SAMPLE_BLOG_POSTS);
     }
   };
 
@@ -342,7 +356,7 @@ export default function BlogScreen() {
       >
         {/* Hero Bölümü */}
         <LinearGradient
-          colors={['#3b82f6', '#6366f1']}
+          colors={['#EF4444', '#F97316']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.header}
@@ -358,7 +372,7 @@ export default function BlogScreen() {
           >
             <ThemedText style={styles.headerTitle}>HSD Blog</ThemedText>
             <ThemedText style={styles.headerSubtitle}>
-              Yazılım, Teknoloji ve Topluluk Yazıları
+              Huawei Student Developers Yazıları
             </ThemedText>
             <View style={styles.dateLabel}>
               <ThemedText style={styles.dateLabelText}>Son güncelleme:</ThemedText>
@@ -385,15 +399,17 @@ export default function BlogScreen() {
         <View style={styles.featuredSection}>
           <Animated.View
             style={[
-              styles.sectionTitle,
+              styles.sectionHeader,
               {
                 opacity: fadeAnim,
                 transform: [{ translateY: translateYAnim }]
               }
             ]}
           >
-            <ThemedText style={styles.sectionTitleText}>Öne Çıkan Yazı</ThemedText>
-            <View style={styles.sectionTitleAccent} />
+            <View style={styles.sectionTitle}>
+              <ThemedText style={styles.sectionTitleText}>Öne Çıkan Yazı</ThemedText>
+              <View style={styles.sectionTitleAccent} />
+            </View>
           </Animated.View>
           {renderFeaturedPost()}
         </View>
@@ -402,11 +418,11 @@ export default function BlogScreen() {
         <View style={styles.blogSection}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitle}>
-              <ThemedText style={styles.sectionTitleText}>Medium Yazıları</ThemedText>
+              <ThemedText style={styles.sectionTitleText}>Blog Yazıları</ThemedText>
               <View style={styles.sectionTitleAccent} />
             </View>
             <View style={styles.blogCountBadge}>
-              <FontAwesome name="bookmark" size={14} color="#3b82f6" />
+              <FontAwesome name="bookmark" size={14} color="#EF4444" />
               <ThemedText style={styles.blogCountText}>{posts.length} yazı</ThemedText>
             </View>
           </View>
@@ -462,8 +478,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingVertical: 30,
     paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 20,
     position: 'relative',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
@@ -471,19 +488,20 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingTop: 0,
+    paddingBottom: 10,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 10,
+    marginBottom: 8,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 20,
+    marginBottom: 16,
     textAlign: 'center',
   },
   dateLabel: {
